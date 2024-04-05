@@ -1,5 +1,35 @@
 //书签格式 bookmarks = [{caption='', content=[{title='',url=''},,,]},,,] 
 var bookmarks = []; // 所有的书签
+var isDarkMode = false; // 当前是否是 dark 模式
+
+// 检查浏览器是否支持 matchMedia
+if (window.matchMedia) {
+    // 检查 prefers-color-scheme 媒体功能是否匹配 dark
+    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    // 判断当前是否是 dark 模式
+    if (darkModeMediaQuery.matches) {
+        console.log('当前处于 Dark 模式');
+        isDarkMode = true;
+    } else {
+        console.log('当前处于 Light 模式');
+        isDarkMode = false;
+    }
+} else {
+    console.log('不支持 matchMedia');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // 获取 <link> 元素，假设它是页面中的第一个 <link> 标签
+    var linkElement = document.querySelector('link[rel="stylesheet"]');
+    if (isDarkMode) {
+        linkElement.href = 'dark.css'; // 切换到 dark 模式
+    }
+    else {
+        linkElement.href = 'light.css'; // 切换到 light 模式
+    }
+});
+
 
 // 书签获取
 chrome.bookmarks.getTree(function (data) {
@@ -45,7 +75,7 @@ function toHTML(bookmarks) { // 书签转换成HTML
         for (var item of folder.content) {
             getImg(item);
             var im = '<img class="im" src="' + favicon(item.url) + '" href="' + item.url + '" ></img>';
-            var tit = '<a class="tit" href="' + item.url + '">' + item.title + '</a>';
+            var tit = '<a class="tit" href="' + item.url + '"title="' + item.title + '">' + item.title + '</a>';
             var del = '<div class="del_bt" id="' + item.id + '"></div>';
             HTML += '<div class="bt">'
                 + im + tit + del
